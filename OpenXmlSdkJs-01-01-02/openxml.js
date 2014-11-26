@@ -120,7 +120,7 @@ OpenXmlRelationship
                     var f2 = f;
                     if (f !== "[Content_Types].xml")
                         f2 = "/" + f;
-                    var newPart = new openXml.OpenXmlPart(pkg, f2, null, null, zipFile.data);
+                    var newPart = new openXml.OpenXmlPart(pkg, f2, null, null, zipFile.asBinary());
                     pkg.parts[f2] = newPart;
 
                 }
@@ -303,6 +303,14 @@ OpenXmlRelationship
             openFromBlobInternalAsync(this, blob, cb);
         }
 
+        openXml.OpenXmlPackage.prototype.openFromBuffer = function (blob) {
+            openFromBlobInternal(this, blob);
+        }
+
+        openXml.OpenXmlPackage.prototype.openFromBufferAsync = function (blob, cb) {
+            openFromBlobInternalAsync(this, blob, cb);
+        }
+
         function saveToZip(that) {
             var zip = new JSZip();
             for (var part in that.parts) {
@@ -428,6 +436,35 @@ OpenXmlRelationship
                     });
                     clearInterval(intervalId);
                     cb(blob);
+                    return;
+                }
+            }, 10);
+        };
+
+        openXml.OpenXmlPackage.prototype.saveToBuffer = function () {
+            var zip = saveToZip(this);
+            var buffer = zip.generate({
+                type: "nodebuffer"
+            });
+            return buffer;
+        };
+
+        openXml.OpenXmlPackage.prototype.saveToBufferAsync = function (cb) {
+            var zip = null;
+            var state = 1;
+            var pkg = this;
+            var intervalId = setInterval(function () {
+                if (state === 1) {
+                    zip = saveToZip(pkg);
+                    state = 2;
+                    return;
+                }
+                if (state === 2) {
+                    var buffer = zip.generate({
+                        type: "nodebuffer"
+                    });
+                    clearInterval(intervalId);
+                    cb(buffer);
                     return;
                 }
             }, 10);
