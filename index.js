@@ -1,3 +1,5 @@
+// Open XML SDK
+// Microsoft Public License (Ms-PL)
 
 var vm = require('vm');
 var fs = require('fs');
@@ -9,7 +11,8 @@ var context = vm.createContext({
   Enumerable: require('linq'),
   JSZip: require('jszip')
 });
-['ltxml.js', 'ltxml-extensions.js', 'openxml.js'].forEach(function(name) {
+['ltxml.js', 'ltxml-extensions.js', 'openxml.js']
+.forEach(function(name) {
   vm.runInContext(fs.readFileSync(path.join(path.dirname(module.filename), SDK, name), 'utf8'), context, name);
 });
 
