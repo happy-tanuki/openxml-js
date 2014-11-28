@@ -134,7 +134,11 @@ OpenXmlRelationship
             for (var part in pkg.parts) {
                 if (part === "[Content_Types].xml")
                     continue;
+                if (part.indexOf("[trash]") != -1)
+                    continue; // handle trash items https://openxmlsdkjs.codeplex.com/workitem/1
                 var ct = pkg.getContentType(part);
+                if (ct === null)
+                    throw "Invalid Open XML document: content type of "+part+" is undefined";
                 var thisPart = pkg.parts[part];
                 thisPart.contentType = ct;
                 if (openXml.util.endsWith(ct, "xml")) {
