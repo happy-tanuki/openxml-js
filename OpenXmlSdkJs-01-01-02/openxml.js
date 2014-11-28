@@ -325,6 +325,9 @@ OpenXmlRelationship
                     if (part === "[Content_Types].xml") {
                         zip.file("[Content_Types].xml", that.ctXDoc.toString(false));
                     }
+                    else if (part.indexOf("[trash]") != -1) {
+                        // ignore trash items
+                    }
                     else {
                         var cte = that.ctXDoc.getRoot().elements(CT.Override).firstOrDefault(function (e) {
                             return e.attribute("PartName").value === part;
