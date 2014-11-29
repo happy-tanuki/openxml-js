@@ -7,7 +7,12 @@ var path = require('path');
 
 var SDK = "OpenXmlSdkJs-01-01-02";
 
-var context = vm.createContext({
+function createContext(obj) {
+    for (var key in this) if (this.hasOwnProperty(key)) obj[key] = this[key];
+    return vm.createContext(obj);
+}
+
+var context = createContext({
   Enumerable: require('linq'),
   JSZip: require('jszip')
 });
