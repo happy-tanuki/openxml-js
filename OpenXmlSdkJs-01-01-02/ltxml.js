@@ -318,7 +318,7 @@ Email: eric@ericwhite.com
     // Ltxml encapsulation function
     function defineLtxml(root, Enumerable) {  //ignore jslints
 
-        var parseXml, Functions, Ltxml, addContentThatCanContainEntities,
+        var parseXml, Functions, Ltxml, addContentThatCanContainEntities, getContentThatCanBeEntity,
             serializeAttributeContent, annotateRootForNamespaces,
             prefixCounter, entityCodePoints, entities,
             ancestors, ancestorsAndSelf, attributes, descendantNodes, descendantNodesAndSelf, descendants, descendantsAndSelf, elements,
@@ -1125,6 +1125,26 @@ Email: eric@ericwhite.com
                 putContentFunc(textToAdd);
             }
             return;
+        };
+
+        getContentThatCanBeEntity = function(node) {
+            var nodeValue = node && node.value;
+            if (!nodeValue) return null;
+            if (node.nodeType !== 'Entity') return nodeValue;
+            if (nodeValue[0] === '#') {
+                if (nodeValue[1] === 'x') {
+                    return String.fromCharCode(parseInt(nodeValue.substring(2), 16));
+                } else {
+                    return String.fromCharCode(parseInt(nodeValue.substring(1), 10));
+                }
+            } else {
+                var ind = entities.indexOf(nodeValue);
+                if (ind !== -1) {
+                    return String.fromCharCode(entityCodePoints[ind]);
+                } else {
+                    return nodeValue;
+                }
+            }
         };
 
         /********************** XNamespace **********************/
@@ -3703,7 +3723,7 @@ Email: eric@ericwhite.com
                     n.nodeType === 'CDATA' ||
                     n.nodeType === 'Entity';
                 })
-                .select(function (n) { return n.value; })
+                .select(getContentThatCanBeEntity)
                 .toArray()
                 .join('');
             return returnValue;
